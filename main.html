@@ -1,889 +1,304 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>PHIZ</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script src="js/jquery-ui-1.9.0.custom.min.js"></script>
-	<script src="js/jquery.hoverIntent.minified.js"></script>
-	<script src="js/jquery.color.js"></script>
-	<script src="js/listings.js"></script>
-	<script src="js/gui.js"></script>
-	<script src="js/groups.js"></script>
-	<script src="js/jquery.ui.tooltip hover only.js"></script>
-	<script type="text/javascript">
-		//$.uiBackCompat = false;
-	    advanced = false;
-		groupChanged = false;
-	    //serviceLocation = "/Phiz/phizService.svc/";
-	    serviceLocation = "/PortletWCFServices/phizService.svc/";
-
-	    
-	    secureKey = parent.PhizGetSecureKey();
-
-	function createPDF()
-	{
-		$("#mainContainer").html("<img src='images/Ajax-loader.gif' style='position:absolute; left: 50%; top: 50%;'>");
-		if (!advanced)
-		{
-		    $.ajax
-		    ({
-		        url: serviceLocation + "getPDF",
-		        type: "GET",
-		        data: { "group": document.getElementById("folder").value, "sortBy": document.getElementById("sortBy").value, "order": document.getElementById("order").value, "search": document.getElementById("searchBox").value,
-							"showPhoto":($("#PDFpicCheck").attr("checked") == "checked"), "showRes":($("#PDFresCheck").attr("checked") == "checked") , "showPhone":($("#PDFphoneCheck").attr("checked") == "checked"),
-							"showCell":($("#PDFcellCheck").attr("checked") == "checked"),"showDorm":($("#PDFdormCheck").attr("checked") == "checked") ,"showExtension":($("#PDFextensionCheck").attr("checked") == "checked"),
-							"showEmail":($("#PDFemailCheck").attr("checked") == "checked") ,"showBox":($("#PDFboxCheck").attr("checked") == "checked") ,"showDob":($("#PDFdobCheck").attr("checked") == "checked"),
-							"showYear":($("#PDFyearCheck").attr("checked") == "checked"),"showMajor":($("#PDFmajorCheck").attr("checked") == "checked") ,"showAddress":($("#PDFaddressCheck").attr("checked") == "checked"),
-							"showFSphoto":($("#PDFphotoCheckFS").attr("checked") == "checked"),"showFStitle":($("#PDFtitleCheckFS").attr("checked") == "checked"),
-							"showFSextension":($("#PDFextnesionCheckFS").attr("checked") == "checked"), "showFSbuilding":($("#PDFbuildingCheckFS").attr("checked") == "checked"),
-							"showFSemail":($("#PDFemailCheckFS").attr("checked") == "checked"),	"showFSphone":($("#PDFphoneCheckFS").attr("checked") == "checked"),	
-							"showFSaddress":($("#PDFaddressCheckFS").attr("checked") == "checked")
-				},
-		        processData: true,
-		        contentType: "application/json; charset=utf-8",
-		        dataType: "json",
-		        success: function (response)
-		        {
-		            if (response.phizResponse != "")
-					{
-						$("#pdfDialog").html("<a href='phizPDF/" + response.phizResponse + "' target='_blank' style='text-align:center'>Click here to view your PDF</a>");
-						$("#pdfDialog").dialog("open");
-					}
-					else
-					{
-						alert("An error has occurred. Please try again later.");
-					}
-		            getListingsTop();
-		        },
-		        error: showError,
-		        cache: false
-		    });
-		}
-		else
-		{
-		    var gender;
-		    var dorm;
-		    var major;
-
-		    if (document.getElementById("maleRadio").checked == true)
-		    {
-		        gender = "M";
-		    }
-		    else if (document.getElementById("femaleRadio").checked == true)
-		    {
-		        gender = "F";
-		    }
-		    else
-		    {
-		        gender = "";
-		    }
-
-		    if (gender == "M")
-		    {
-		        dorm = document.getElementById("mensDorms").value;
-		    }
-		    else if (gender == "F")
-		    {
-		        dorm = document.getElementById("womensDorms").value;
-		    }
-		    else
-		    {
-		        dorm = document.getElementById("eitherDorms").value;
-		    }
-
-		    if (document.getElementById("folder").value == "undergrad")
-		    {
-		        major = document.getElementById("ugMajor").value;
-		    }
-		    else if (document.getElementById("folder").value == "grad")
-		    {
-		        major = document.getElementById("grMajor").value;
-		    }
-		    else if (document.getElementById("folder").value == "mmp")
-		    {
-		        major = document.getElementById("mmpMajor").value;
-		    }
-		    else
-		    {
-		        major = "";
-		    }
-            $.ajax
-		    ({
-		        url: serviceLocation + "getPDFadvanced",
-		        type: "GET",
-		        data: { "group": document.getElementById("folder").value, "sortBy": document.getElementById("sortBy").value, "order": document.getElementById("order").value, 
-		            "firstName": document.getElementById("advFirstName").value, "lastName": document.getElementById("advLastName").value, "gender": gender, "year": document.getElementById("yearSelect").value,
-		            "dorm": dorm, "floor": document.getElementById("floorSelect").value, "major": major, "sport": document.getElementById("sportsSelect").value,
-						"showPhoto":($("#PDFpicCheck").attr("checked") == "checked"), "showRes":($("#PDFresCheck").attr("checked") == "checked") , "showPhone":($("#PDFphoneCheck").attr("checked") == "checked"),
-						"showCell":($("#PDFcellCheck").attr("checked") == "checked"),"showDorm":($("#PDFdormCheck").attr("checked") == "checked") ,"showExtension":($("#PDFextensionCheck").attr("checked") == "checked"),
-						"showEmail":($("#PDFemailCheck").attr("checked") == "checked") ,"showBox":($("#PDFboxCheck").attr("checked") == "checked") ,"showDob":($("#PDFdobCheck").attr("checked") == "checked"),
-						"showYear":($("#PDFyearCheck").attr("checked") == "checked"),"showMajor":($("#PDFmajorCheck").attr("checked") == "checked") ,"showAddress":($("#PDFaddressCheck").attr("checked") == "checked"),
-						"showFSphoto":($("#PDFphotoCheckFS").attr("checked") == "checked"),"showFStitle":($("#PDFtitleCheckFS").attr("checked") == "checked"),
-						"showFSextension":($("#PDFextnesionCheckFS").attr("checked") == "checked"), "showFSbuilding":($("#PDFbuildingCheckFS").attr("checked") == "checked"),
-						"showFSemail":($("#PDFemailCheckFS").attr("checked") == "checked"),	"showFSphone":($("#PDFphoneCheckFS").attr("checked") == "checked"),	
-						"showFSaddress":($("#PDFaddressCheckFS").attr("checked") == "checked")
-		        },
-		        processData: true,
-		        contentType: "application/json; charset=utf-8",
-		        dataType: "json",
-		        success: function (response) { 
-					if (response.phizResponse != "")
-					{
-						$("#pdfDialog").html("<a href='phizPDF/" + response.phizResponse + "' target='_blank' style='text-align:center'>Click here to view your PDF</a>");
-						$("#pdfDialog").dialog("open");
-					}
-					else
-					{
-						alert("An error has occurred. Please try again later.");
-					}
-					getListingsAdvTop(); 
-				},
-		        error: showError,
-		        cache: false
-		    });
-		}
-	}
-	
-	function createPDFsingle(idNum)
-	{
-		$.ajax
-		({
-			url: serviceLocation + "getPDFsingle",
-			type: "GET",
-			data: { "userID": idNum,
-						"showPhoto":($("#PDFpicCheck").attr("checked") == "checked"), "showRes":($("#PDFresCheck").attr("checked") == "checked") , "showPhone":($("#PDFphoneCheck").attr("checked") == "checked"),
-						"showCell":($("#PDFcellCheck").attr("checked") == "checked"),"showDorm":($("#PDFdormCheck").attr("checked") == "checked") ,"showExtension":($("#PDFextensionCheck").attr("checked") == "checked"),
-						"showEmail":($("#PDFemailCheck").attr("checked") == "checked") ,"showBox":($("#PDFboxCheck").attr("checked") == "checked") ,"showDob":($("#PDFdobCheck").attr("checked") == "checked"),
-						"showYear":($("#PDFyearCheck").attr("checked") == "checked"),"showMajor":($("#PDFmajorCheck").attr("checked") == "checked") ,"showAddress":($("#PDFaddressCheck").attr("checked") == "checked"),
-						"showFSphoto":($("#PDFphotoCheckFS").attr("checked") == "checked"),"showFStitle":($("#PDFtitleCheckFS").attr("checked") == "checked"),
-						"showFSextension":($("#PDFextnesionCheckFS").attr("checked") == "checked"), "showFSbuilding":($("#PDFbuildingCheckFS").attr("checked") == "checked"),
-						"showFSemail":($("#PDFemailCheckFS").attr("checked") == "checked"),	"showFSphone":($("#PDFphoneCheckFS").attr("checked") == "checked"),	
-						"showFSaddress":($("#PDFaddressCheckFS").attr("checked") == "checked")
-			},
-			processData: true,
-			contentType: "application/json; charset=utf-8",
-			dataType: "json",
-			success: function (response) {
-				if (response.phizResponse == "Error locating user.")
-				{
-					alert(response.phizResponse);
-				}
-				else if (response.phizResponse != "")
-				{
-					$("#pdfDialog").html("<a href='phizPDF/" + response.phizResponse + "' target='_blank' style='text-align:center'>Click here to view your PDF</a>");
-					$("#pdfDialog").dialog("open");
-				}
-				else
-				{
-					alert("An error has occurred. Please try again later.");
-				}
-			},
-			error: showError,
-			cache: false
-		});
-	}
-	
-	function showError(jqxhr, textstatus, error_thrown)
-	{
-		//alert("error: " + error_thrown + textstatus + jqxhr);
-		$("#advSearchForm").dialog("close");
-		$("#groupDialog").dialog("close");
-		$("#mainContainer").html("<div class='errorContainer'>An error has occured. Please try again later.</div>");
-    }
-
-    function resizePortlet()
-	{
-		if ($(parent.window).width() <= 1550)
-			var width = 750;
-		if ($(parent.window).width() > 1550)
-			var width = 1125;
-		//if ($(parent.window).width() > 1685)
-			//var width = 1500;
-		if ($(parent.window).height() - 150 > 500)
-			var height = $(parent.window).height() - 150;
-		else
-			var height = 500;
-		parent.PhizResizeIframe(width, height);
-		
-		var frameID = window.frameElement.id;
-		$(parent.document).find("#"+frameID).attr("responsive", "false");
-	} 
-    function changeGroup()
-    {
-	    if (!advanced)
-		{
-			getListingsTop();
-			getIndexes(); 
-		}
-		else
-		{
-			getListingsAdvTop();
-			getIndexesAdvanced();
-		}
-	    if (document.getElementById("folder").selectedIndex == 0)
-	    {
-	    	document.getElementById("ugRadio").checked = true;
-    	}
-	    else if (document.getElementById("folder").selectedIndex == 1)
-	    {
-	    	document.getElementById("grRadio").checked = true;
-    	}
-	    else if (document.getElementById("folder").selectedIndex == 2)
-	    {
-	    	document.getElementById("mmpRadio").checked = true;
-    	}
-	    else if (document.getElementById("folder").selectedIndex == 3)
-	    {
-	    	document.getElementById("emRadio").checked = true;
-    	}
-    }
-	function saveOptout()
-	{
-		if($("#studentOptout").is(":visible"))
-		{
-			$.ajax
-			({
-				url: serviceLocation + "saveOptionsStudent",
-				type: "GET",	//phoneCheck,dormCheck,emailCheck,boxCheck,dobCheck,addressCheck,cellCheck
-				data: { "phone":($("#phoneCheck").attr("checked") == "checked"), "dorm":($("#dormCheck").attr("checked") == "checked"), "email":($("#emailCheck").attr("checked") == "checked"), "box":($("#boxCheck").attr("checked") == "checked"), "dob":($("#dobCheck").attr("checked") == "checked"), "address":($("#addressCheck").attr("checked") == "checked"), "cell":($("#cellCheck").attr("checked") == "checked"), "optout":($("#optCheck").attr("checked") == "checked"), "secureKey":secureKey},
-				processData: true,
-				contentType: "application/json; charset=utf-8",
-				dataType: "json",
-				success: function (response) 
-				{
-					if (response.phizResponse != "")
-					{
-						alert(response.phizResponse);
-					}
-					else
-					{
-						alert("An error has occurred. Please try again later.");
-					}
-				},
-				error: showError,
-				cache: false
-			});
-		}
-		if($("#employeeOptout").is(":visible"))
-		{
-			$.ajax
-			({
-				url: serviceLocation + "saveOptionsEmployee",
-				type: "GET",	//phoneCheck,dormCheck,emailCheck,boxCheck,dobCheck,addressCheck,cellCheck
-				data: { "phone":($("#phoneCheckFS").attr("checked") == "checked"), "address":($("#addressCheckFS ").attr("checked") == "checked"), "secureKey":secureKey},
-				processData: true,
-				contentType: "application/json; charset=utf-8",
-				dataType: "json",
-				success: function (response) 
-				{
-					if (response.phizResponse != "")
-					{
-						alert(response.phizResponse);
-					}
-					else
-					{
-						alert("An error has occurred. Please try again later.");
-					}
-				},
-				error: showError,
-				cache: false
-			});
-		}
-	}
-	
-	function checkOptouts()
-	{
-		$.ajax
-		({
-			url: serviceLocation + "isStudentEmployee",
-			type: "GET",
-			data: { "secureKey":secureKey},
-			processData: true,
-			contentType: "application/json; charset=utf-8",
-			dataType: "json",
-			success: function (response)
-			{
-				if (response.phizResponse != null)
-				{
-					if (!response.phizResponse[0])
-					{
-						$("#studentOptout").hide();
-					}
-					if (!response.phizResponse[1])
-					{
-						$("#employeeOptout").hide();
-					}
-				}
-				else
-				{
-					alert("An error has occurred. Please try again later.");
-					return;
-				}
-			},
-			error: showError,
-			cache: false
-		});
-		
-		//if($("#studentOptout").is(":visible"))
-		{
-			$.ajax
-			({
-				url: serviceLocation + "getOptionsStudent",
-				type: "GET",
-				data: { "secureKey":secureKey},
-				processData: true,
-				contentType: "application/json; charset=utf-8",
-				dataType: "json",
-				success: function (response)
-				{
-					if (response.phizResponse != null)
-					{
-						if (response.phizResponse[0])
-						{
-							$("#phoneCheck").attr("checked", "checked");
-						}
-						if (response.phizResponse[1])
-						{
-							$("#dormCheck").attr("checked", "checked");
-						}
-						if (response.phizResponse[2])
-						{
-							$("#emailCheck").attr("checked", "checked");
-						}
-						if (response.phizResponse[3])
-						{
-							$("#boxCheck").attr("checked", "checked");
-						}
-						if (response.phizResponse[4])
-						{
-							$("#dobCheck").attr("checked", "checked");
-						}
-						if (response.phizResponse[5])
-						{
-							$("#addressCheck").attr("checked", "checked");
-						}
-						if (response.phizResponse[6])
-						{
-							$("#cellCheck").attr("checked", "checked");
-						}
-						if (response.phizResponse[7])
-						{
-							$("#optCheck").attr("checked", "checked");
-						}
-					}
-					else
-					{
-						alert("An error has occurred. Please try again later.");
-						return;
-					}
-				},
-				error: showError,
-				cache: false
-			});
-		}
-		
-		//if($("#employeeOptout").is(":visible"))
-		{
-			$.ajax
-			({
-				url: serviceLocation + "getOptionsEmployee",
-				type: "GET",
-				data: { "secureKey":secureKey},
-				processData: true,
-				contentType: "application/json; charset=utf-8",
-				dataType: "json",
-				success: function (response)
-				{
-					if (response.phizResponse != null)
-					{
-						if (response.phizResponse[0])
-						{
-							$("#phoneCheckFS").attr("checked", "checked");
-						}
-						if (response.phizResponse[1])
-						{
-							$("#addressCheckFS").attr("checked", "checked");
-						}
-					}
-					else
-					{
-						alert("An error has occurred. Please try again later.");
-						return;
-					}
-				},
-				error: showError,
-				cache: false
-			});
-		}
-	}
-	
-    function openPDFdialog()
-	{
-		$('#customPDFdialog').dialog('option', 'buttons', {'Create PDF': function(){getGroupPDF(); $(this).dialog('close');}});
-		if ($("#groupsSelectList :selected").text().substring(0,6)=="Class:")
-		{
-			$("#PDFaddressCheck").removeAttr("checked");
-			$("#PDFaddressCheck").attr("disabled", "true");
-			$("#PDFphoneCheck").removeAttr("checked");
-			$("#PDFphoneCheck").attr("disabled", "true");
-			$("#PDFcellCheck").removeAttr("checked");
-			$("#PDFcellCheck").attr("disabled", "true");
-		}
-		$('#customPDFdialog').dialog('open');
-	}
-	
-	function escapeSpecialChars(inStr)
-	{
-		return inStr.replace(/\\n/g, "\\n")
-					.replace(/\\'/g, "\\'")
-					.replace(/\\"/g, '\\"')
-					.replace(/\\&/g, "\\&")
-					.replace(/\\r/g, "\\r")
-					.replace(/\\t/g, "\\t")
-					.replace(/\\b/g, "\\b")
-					.replace(/\\f/g, "\\f");
-	}
-	
-    $(document).ready(function ()
-    {
-        //resizeWindow();
-        resizePortlet();
-        document.getElementById("mainContainer").style.height = ($(window).height() - 150 + "px");
-        document.getElementById("footer").style.top = ($(window).height() - 50) + "px";
-        getListingsTop();
-        getIndexes();
-        document.getElementById("order").selectedIndex = 0;
-        $("#searchBox").keyup(
-			function (event)
-			{
-			    if (event.keyCode == 13)
-			    {
-			        getListingsTop();
-			        getIndexes();
-			        document.getElementById("folder").removeAttribute("disabled");
-			    }
-			});
-        $("#advFirstName, #advLastName, #ugMajor, #grMajor, #mmpMajor").keyup(
-            function (event)
-            {
-                if (event.keyCode == 13)
-                {
-                    getListingsAdvTop();
-                    $("#advSearchForm").dialog("close");
-                    getIndexesAdvanced();
-                }
-            }
-        )
-        $("#advSearchForm").dialog({
-            autoOpen: false,
-            height: 300,
-            width: 550,
-            modal: true,
-            resizable: false,
-            title: "Advanced Search",
-            buttons: { "Submit": function ()
-            {
-                getListingsAdvTop();
-                $(this).dialog("close");
-                getIndexesAdvanced();
-            }
-            }
-        });
-        $("#groupDialog").dialog({
-            autoOpen: false,
-            height: 550,
-            width: 600,
-            modal: true,
-            resizable: false,
-            title: "My Groups",
-			beforeClose: function(){
-				if($("#groupsSelectList :selected").text().substring(0,7)!="Shared:" && groupChanged && confirm("Would you like to save the changes to your group?")) 
-				{
-					updateGroup($("#groupsSelectList :selected").text(), $("#groupsSelectList").val());
-				}
-				$(".ui-accordion").accordion("destroy");
-			},
-            buttons: { "Save": function () { updateGroup($("#groupsSelectList :selected").text(), $("#groupsSelectList").val()); groupChanged = false; } }
-        });
-        $("#shareDialog").dialog({
-            autoOpen: false,
-            height: 400,
-            width: 500,
-            modal: true,
-            resizable: false,
-            buttons: { "Done": function () { $(this).dialog("close"); } }
-        });
-		$("#shareHelp").dialog({
-			autoOpen: false,
-			height: 250,
-			width: 300,
-			modal: true,
-			resizable: false,
-			title: "Help",
-			buttons: {"OK": function() {$(this).dialog("close"); } }
-		});
-		$("#pdfDialog").dialog({
-            autoOpen: false,
-            height: 100,
-            width: 300,
-            modal: true,
-            resizable: false
-        });
-		$("#emailDialog").dialog({
-			autoOpen: false,
-			height: 525,
-			width: 500,
-			modal: true,
-			resizable: false,
-			title: "Email Group",
-			buttons: { "Send": function() {emailGroup(); $(this).dialog("close");}, "Cancel": function(){$(this).dialog("close");}}
-		});
-		$("#optionsDialog").dialog({
-			autoOpen: false,
-            height: 450,
-            width: 450,
-            modal: true,
-            resizable: false,
-            title: "Options",
-            buttons: { "Save": function () { saveOptout(); $(this).dialog('close'); } }
-		})
-		$("#customPDFdialog").dialog({
-			autoOpen: false,
-            height: 425,
-            width: 525,
-            modal: true,
-            resizable: false,
-            title: "Custom PDF"
-		})
-        $(":radio").change(function ()
-        {
-            switch (this.id)
-            {
-                case "ugRadio":
-                    $("#grMajor, #mmpMajor").hide({ duration: 150, complete: function () { $("#ugMajor").show(150); } });
-                    if (document.getElementById("maleRadio").checked == true)
-                    {
-                        $("#dormRow, #mensDorms").show(150);
-                    }
-                    else if (document.getElementById("femaleRadio").checked == true)
-                    {
-                        $("#dormRow, #womensDorms").show(150);
-                    }
-					else if (document.getElementById("eitherRadio").checked == true)
-					{
-						$("#dormRow, #eitherDorms").show(150);
-					}
-                    $("#majorText, #yearText, #yearDiv, #sportsRow").show(150);
-                    document.getElementById("folder").selectedIndex = 0;
-                    break;
-                case "grRadio":
-                    $("#ugMajor, #mmpMajor").hide({ duration: 150, complete: function () { $("#grMajor, #majorText").show(150); } });
-                    $("#dormRow, #yearText, #yearDiv, #sportsRow").hide(150);
-                    document.getElementById("folder").selectedIndex = 1;
-                    break;
-                case "mmpRadio":
-                    $("#grMajor, #ugMajor").hide({ duration: 150, complete: function () { $("#mmpMajor, #majorText").show(150); } });
-                    $("#dormRow, #yearText, #yearDiv, #sportsRow").hide(150);
-                    document.getElementById("folder").selectedIndex = 2;
-                    break;
-                case "emRadio":
-                    $("#ugMajor, #grMajor, #mmpMajor, #majorText, #dormRow, #yearText, #yearDiv, #sportsRow").hide(150);
-                    document.getElementById("folder").selectedIndex = 3;
-                    break;
-                case "maleRadio":
-                    if (document.getElementById("ugRadio").checked == true)
-                    {
-                        $("#mensDorms").show(150);
-                        $("#womensDorms").hide(150);
-						$("#eitherDorms").hide(150);
-                        document.getElementById("mensDorms").selectedIndex = 0;
-                        $("#floorText, #floorSelect").hide(150);
-                    }
-                    break;
-                case "femaleRadio":
-                    if (document.getElementById("ugRadio").checked == true)
-                    {
-                        $("#mensDorms").hide(150);
-                        $("#womensDorms").show(150);
-						$("#eitherDorms").hide(150);
-                        document.getElementById("womensDorms").selectedIndex = 0;
-                        $("#floorText, #floorSelect").hide(150);
-                    }
-                    break;
-                case "eitherRadio":
-                    if (document.getElementById("ugRadio").checked == true)
-                    {
-                        $("#mensDorms").hide(150);
-                        $("#womensDorms").hide(150);
-						$("#eitherDorms").show(150);
-						document.getElementById("eitherDorms").selectedIndex = 0;
-                        $("#floorText, #floorSelect").hide(150);
-                    }
-                    break;
-            }
-        })
-        $("#mensDorms, #womensDorms, #eitherDorms").change(function ()
-        {
-            switch (this.value)
-            {
-                case "":
-                case "Commuter":
-                    $("#floorText, #floorSelect").hide(150);
-                    break;
-                default:
-                    document.getElementById("floorSelect").selectedIndex = 0;
-                    $("#floorText, #floorSelect").show(150);
-                    break;
-            }
-        })
-        $(".indexLetter").mouseup(
-		function ()
-		{
-		    $(".indexSpan").hide();
-		    $("#" + this.id.substring(0, 1) + "Span").show();
-		})
-        $("#shareAutocomplete").autocomplete({ source: autocompleteSearch,
-            minLength: 3,
-            select: function (event, selected)
-            {
-                shareFolder($("#groupsSelectList").val(), selected.item.value);
-                document.getElementById("shareAutocomplete").value = ""
-                return false;
-            }
-        });
-		$("#shareAutocomplete").tooltip({
-            
-			track: true
-		}).off('focusout');
-        var ugMajorArr = ["Early Childhood Education", "Intervention Specialist Education", "Middle Childhood Education", "Music Education", "Nursing", "Accounting", "Bible and Theology", "Biochemistry", "Biology", "Biology - Clinical Laboratory Science", "Business Administration", "Chemistry", "Communication Arts", "Computer Science", "Creative Writing", "Criminal and Restorative Justice", "Cybersecurity", "English", "Environmental Studies", "Exercise Science", "Finance", "Global and International Studies", "History", "Integrated Language Arts", "Integrated Social Studies", "Liberal Arts", "Life Science/Chemistry Education", "Life Science Education", "Marketing", "Mathematics", "Music", "Political Science", "Psychology", "Social Work", "Sport Management", "Zoo and Wildlife Biology"];
-        var grMajorArr = ["Master, Business Administration", "Reading", "Clinical Counseling", "Classroom Guidance", "Clinical Nurse Specialist", "Intervention Specialist", "Organizational Leadership", "Classroom-Based Counseling and Advocacy", "Curriculum, Instruction & Profes Dev", "School Counseling", "Undecided", "Curriculum & Instruction", "Educational Leadership", "Family Nurse Practitioner", "Organizational Management", "Theological Studies", "Nursing", "Early Childhood Education", "Christian Leadership in Sports Min", "Community Counseling"];
-        var mmpMajorArr = ["Organizational Management", "Project Management", "Marketing Management", "Health Services Management"];
-        $("#ugMajor").autocomplete({ source: ugMajorArr });
-        $("#grMajor").autocomplete({ source: grMajorArr });
-        $("#mmpMajor").autocomplete({ source: mmpMajorArr });
-		checkOptouts();
-		$("#customPDFdialog :checkbox").attr("checked", "checked");
-		$('#PDFtoggleButton').toggle(
-		function(){$("#customPDFdialog :checkbox").removeAttr("checked");}, 
-		function() {$("#customPDFdialog :checkbox").attr("checked", "checked");});
-		
-		$('#studentToggleButton').toggle(
-		function() {$("#studentOptout :not(#optCheck) :checkbox").attr("checked", "checked");},
-		function(){$("#studentOptout :not(#optCheck) :checkbox").removeAttr("checked");}
-		);
-		
-		$('#employeeToggleButton').toggle(
-		function() {$("#employeeOptout :checkbox").attr("checked", "checked");},
-		function(){$("#employeeOptout :checkbox").removeAttr("checked");});
-    })
-	
-	</script>
-<link href="css/phizStyle.css" rel="stylesheet" type="text/css"/>
-<link href="css/MU-theme/jquery-ui-1.9.0.custom.min.css" rel="Stylesheet" type="text/css" />
-</head>
-<body>
-	<div id="header" class="header">
-	
-		<span class="headerLinks">
-			<a href="javascript:void(0)" id="options" onClick="$('#optionsDialog').dialog('open')">Options</a>
-	        <a href="javascript:void(0)" id="advSearch" onClick="$('#advSearchForm').dialog('open')">Advanced Search</a> 
-	        <a href="javascript:void(0)" onclick="document.getElementById('groupsSelectList').selectedIndex = 0; resetGroupDialog(); $('#groupDialog').dialog('open');">My Groups</a> 
-	        <a href="javascript:void(0)" onclick="$('#customPDFdialog').dialog('option', 'buttons', {'Create PDF': function(){createPDF(); $(this).dialog('close');}}); $('#customPDFdialog').dialog('open');">Create PDF</a>
-        </span>
-        
-        <img onclick="location.reload(true)" src="images/Phiz logo 1.png" alt="PHIZ" style="cursor: pointer;"><br />
-        Search: <input type="text" id="searchBox" spellcheck="false" /><input type="button" value="Go" onClick="getListingsTop(); getIndexes();">
-        Group: <select id="folder" onChange="changeGroup();"><option value="undergrad">Undergraduate</option><option value="grad">Graduate</option><option value="mmp">MMP</option><option value="emp">Employees</option></select>
-        Sort By: <select id="sortBy" onChange="if (!advanced) {getListingsTop(); getIndexes();} else {getListingsAdvTop(); getIndexesAdvanced();}"><option value="ln">Last Name</option><option value="fn">First Name</option></select>
-        Order: <select id="order" onChange="changeOrder();"><option value="ascending">Ascending</option><option value="descending">Descending</option></select>
-	
-        <div id="popupMessage" class="highlightBox" style="display:none">Your PDF is being generated.<br />You may need to temporarily disable your popup blocker or click "allow" in order to view it.</div>
-
-        
-	</div>
-	<div id="mainContainer" class="mainContainer">
-	    <h1 style="color:#2C426B">Loading, please wait...</h1>
-	</div>
-	<div id="footer" class="footer">
-        <div id="numFooter"></div>
-        <div id="alphaFooter">
-		    <span id="aSpan" style="display:none" class="indexSpan"></span><span id="bSpan" style="display:none" class="indexSpan"></span><span id="cSpan" style="display:none" class="indexSpan"></span>
-		    <span id="dSpan" style="display:none" class="indexSpan"></span><span id="eSpan" style="display:none" class="indexSpan"></span><span id="fSpan" style="display:none" class="indexSpan"></span>
-		    <span id="gSpan" style="display:none" class="indexSpan"></span><span id="hSpan" style="display:none" class="indexSpan"></span><span id="iSpan" style="display:none" class="indexSpan"></span>
-		    <span id="jSpan" style="display:none" class="indexSpan"></span><span id="kSpan" style="display:none" class="indexSpan"></span><span id="lSpan" style="display:none" class="indexSpan"></span>
-		    <span id="mSpan" style="display:none" class="indexSpan"></span><span id="nSpan" style="display:none" class="indexSpan"></span><span id="oSpan" style="display:none" class="indexSpan"></span>
-		    <span id="pSpan" style="display:none" class="indexSpan"></span><span id="qSpan" style="display:none" class="indexSpan"></span><span id="rSpan" style="display:none" class="indexSpan"></span>
-		    <span id="sSpan" style="display:none" class="indexSpan"></span><span id="tSpan" style="display:none" class="indexSpan"></span><span id="uSpan" style="display:none" class="indexSpan"></span>
-		    <span id="vSpan" style="display:none" class="indexSpan"></span><span id="wSpan" style="display:none" class="indexSpan"></span><span id="xSpan" style="display:none" class="indexSpan"></span>
-		    <span id="ySpan" style="display:none" class="indexSpan"></span><span id="zSpan" style="display:none" class="indexSpan"></span> 
-		    <br />	
-            <div id="indexLetters">
-		        <span id="aLetter" class="indexLetter">A</span><span id="bLetter" class="indexLetter">B</span><span id="cLetter" class="indexLetter">C</span><span id="dLetter" class="indexLetter">D</span>
-		        <span id="eLetter" class="indexLetter">E</span><span id="fLetter" class="indexLetter">F</span><span id="gLetter" class="indexLetter">G</span><span id="hLetter" class="indexLetter">H</span>
-		        <span id="iLetter" class="indexLetter">I</span><span id="jLetter" class="indexLetter">J</span><span id="kLetter" class="indexLetter">K</span><span id="lLetter" class="indexLetter">L</span>
-		        <span id="mLetter" class="indexLetter">M</span><span id="nLetter" class="indexLetter">N</span><span id="oLetter" class="indexLetter">O</span><span id="pLetter" class="indexLetter">P</span>
-		        <span id="qLetter" class="indexLetter">Q</span><span id="rLetter" class="indexLetter">R</span><span id="sLetter" class="indexLetter">S</span><span id="tLetter" class="indexLetter">T</span>
-		        <span id="uLetter" class="indexLetter">U</span><span id="vLetter" class="indexLetter">V</span><span id="wLetter" class="indexLetter">W</span><span id="xLetter" class="indexLetter">X</span>
-		        <span id="yLetter" class="indexLetter">Y</span><span id="zLetter" class="indexLetter">Z</span>
-            </div>	
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/phizStyle.css" />
+    <title>Phiz</title>
+  </head>
+  <body>
+    <header>
+      <div id="header-links">
+        <a href="#" id="options">Options</a>
+        <a href="#" id="advanced-search">Advanced Search</a>
+        <a href="#" id="my-groups">My Groups</a>
+        <a href="#" id="create-pdf">Create PDF</a>
+      </div>
+      <div id="header-container">
+        <div id="img-container" class="option">
+          <img src="./images/Phiz logo 1.png" alt="Phiz" />
         </div>
-	</div>
-	
-	
-	<div id="advSearchForm">
-		<table border=0>
-		<tr>
-			<input id="ugRadio" type="radio" name="groupRadio" checked="true" /><label for="ugRadio">Undergraduate</label> <input id="grRadio" type="radio" name="groupRadio" /><label for="grRadio">Graduate</label> 
-			<input id="mmpRadio" type="radio" name="groupRadio" /><label for="mmpRadio">MMP</label> <input id="emRadio" type="radio" name="groupRadio" /><label for="emRadio">Employee</label><br />
-		</tr>
-		<tr>
-			<td>First Name:</td><td><input type="text" id="advFirstName" spellcheck="false"></td><td>Last Name:</td><td><input type="text" id="advLastName" spellcheck="false"></td>
-		</tr>
-		<tr>
-			<td>Gender:</td><td><input type="radio" name="geneder" id="maleRadio"><label for="maleRadio">Male</label> 
-			<input type="radio" name="geneder" id="femaleRadio"><label for="femaleRadio">Female</label>
-			<input type="radio" name="geneder" id="eitherRadio" checked="true"><label for="eitherRadio">Either</label> </td>
-		</tr>
-		<tr>
-			<td><span id="majorText">Major:</span></td>
-			<td>
-				<input type="text" id="ugMajor" spellcheck="false"/>
-				<input type="text" id="grMajor" style="display:none" spellcheck="false"/>
-				<input type="text" id="mmpMajor" style="display:none" spellcheck="false">
-			</td>
-			<td><span id="yearText">Year:</span></td><td><span id="yearDiv"><select id="yearSelect"><option></option><option value="FR">FR</option><option value="SO">SO</option><option value="JR">JR</option><option value="SR">SR</option></select></span></td>
-		</tr>
-		<tr id="dormRow">
-			<td>Dorm:</td>
-			<td>
-				<select id="mensDorms" style="display:none"><option></option><option>Barclay Hall</option><option>DeVol Hall</option><option>Gurney Hall</option><option>Haviland Hall</option><option>Penn Hall</option><option>Commuter</option></select>
-				<select id="womensDorms" style="display:none"><option></option><option>Blossom Hall</option><option>Fox Hall</option><option>Heritage Hall</option><option>Whittier Hall</option><option>Woolman Hall</option><option>Commuter</option></select>
-				<select id="eitherDorms"><option></option><!--option>Barclay Hall</option--><option>DeVol Hall</option><option>Gurney Hall</option><option>Haviland Hall</option><option>Penn Hall</option><option>Blossom Hall</option><option>Fox Hall</option><option>Heritage Hall</option><option>Whittier Hall</option><option>Woolman Hall</option><option>Commuter</option></select>
-			</td>
-			<td><div id="floorText" style="display:none">Floor:</div></td><td><select id="floorSelect" style="display:none"><option></option><option>1</option><option>2</option><option>3</option></select></td>
-		</tr>
-		<tr id="sportsRow">
-			<td>Sport:</td>
-			<td>
-				<select id="sportsSelect">
-					<option></option><option>Baseball</option><option>Basketball</option><option>Cheerleading</option><option>Cross Country</option><option>Football</option><option>Men's Golf</option>
-					<option>Men's Soccer</option><option>Softball</option><option>Swimming & Diving</option><option>Tennis</option><option>Track</option><option>Volleyball</option>
-					<option>Women's Golf</option><option>Women's Soccer</option>
-				</select>
-			</td>
-		</tr>
-		</table>
-	</div>
-	<div id="groupDialog">
-		<input type="button" id="createGroupButton" value="Create New Group" onClick="createGroup(null)" />
-        <span id="hide">
-            <input type="button" value="Rename" style="display:none" onClick="updateGroupName()" />
-            <input type="button" value="Delete" style="display:none" onClick="removeGroup()" />
-            <input type="button" value="Sharing" style="display:none" onClick="document.getElementById('shareAutocomplete').value=''; $('#shareDialog').dialog('option','title',$('#groupsSelectList :selected').text() + ' - Sharing'); $('#shareDialog').dialog('open'); loadShares($('#groupsSelectList').val());" />
-        </span>
-		<input type="button" value="Email Group" style="display:none" onClick="$('#emailDialog').dialog('open')" id="emailButton" />
-        <input type="button" value="Create PDF" id="pdfButton" onclick="openPDFdialog();" />
-		<div id="delete" style="display:none"></div>
-		<div id="groupAccordion" style="overflow: auto; height: 87%; padding-top: 5px;"></div>
-		<div id="sortOptions" style="display:none">
-			Sort By: <select id="groupSortBy"><option value="ln">Last Name</option><option value="fn">First Name</option></select>
-			Order: <select id="groupOrder"><option value="ascending">Ascending</option><option value="descending">Descending</option></select>
-			<input type="button" value="Sort" id="groupSortButton" onclick="sortGroup()" />
-		</div>
-	</div>
-	<div id="shareDialog"> 
-		Add: <input type="text" id="shareAutocomplete" style="width: 80%;" title="Begin typing a person's name,<br />then click their name as it appears below."/> <a href = "javascript:void(0)" style="font-size: 12px; padding-left: 5px;" onclick="$('#shareHelp').dialog('open');">Help</a><br />
-		<hr />
-		This group is currently shared with:<br />
-		<div id="sharedList"></div>
-	</div>
-	<div id="pdfDialog"></div>
-	<div id="shareHelp">
-		To share a group simply click the text box, then start typing the name of the person with whom you wish to share the group, then click their name as it appears in the box below.<br />
-		Users can view, email, and create PDFs of groups you share with them, but cannot edit them in any way.
-	</div>
-	<div id="emailDialog">
-		Subject: <input type="text"id="emailSubject" style = "width: 85%;" /><br />
-		Message: <br />
-		<textarea style = "width : 100%; height: 87%" id="emailBody"></textarea>
-	</div>
-	<div id="optionsDialog">
-		<div id="studentOptout">
-			<h2 style="text-align:center;">Student Phiz Opt-out</h2>Check boxes below to opt-out your information from the Phiz. Please note that opting out of the Phiz <b>is not an official request for privacy</b>. It will only hide your information on the Phiz.<br />
-			For an official request for privacy accross all of Malone's records, please contact the Office of the Registrar.
-			<hr noshade='noshade' />
-			<input type="checkbox" id="optCheck"><label for="optCheck">Opt-out Completely</label>
-			<hr noshade='noshade' />
-			Selective opt-outs:
-			<table border = 0>
-				<tr>
-					<td><input type="checkbox" id="phoneCheck" /><label for="phoneCheck">Home Phone #</label> </td><td><input type="checkbox" id="cellCheck" /><label for="cellCheck">Cell Phone #</label> </td> </td>
-					<td> <input type="checkbox" id="dormCheck" /><label for="dormCheck">Dorm Room</label></td><td><input type="checkbox" id="emailCheck" /><label for="emailCheck">Email</label> </td>
-				</tr>
-				<tr>
-					<td> <input type="checkbox" id="boxCheck" /><label for="boxCheck">Mailbox</label></td><td><input type="checkbox" id="dobCheck" /><label for="dobCheck">Birthdate</label> </td>
-					<td> <input type="checkbox" id="addressCheck"><label for="addressCheck">Home Address</label> </td>
-				</tr>
-			</table>
-			<center><input type="button" value="Check/Uncheck All" id="studentToggleButton" /></center>
-		</div>
-		<div id="employeeOptout">
-			<h2 style="text-align:center;">Employee Phiz Opt-out</h2>Check boxes below to opt-out your information from the Phiz. Please note that opting out of the Phiz <b>is not an official request for privacy</b>. It will only hide your information on the Phiz.<br />
-			For an official request for privacy accross all of Malone's records, please contact the Human Resources Department.
-			<hr noshade='noshade' />
-			Selective opt-outs:
-			<table border = 0>
-				<tr>
-					<td><input type="checkbox" id="phoneCheckFS" /><label for="phoneCheckFS">Home Phone #</label> </td> 
-					<td> <input type="checkbox" id="addressCheckFS" /><label for="addressCheckFS">Home Address</label> </td>
-				</tr>
-			</table>
-			<center><input type="button" value="Check/Uncheck All" id="employeeToggleButton" /></center>
-		</div>
-	</div>
-	<div id="customPDFdialog">
-			Check boxes to choose information to display on your PDF.
-			<hr noshade="noshade" />
-			Students:
-			<table border = 0>
-				<tr>
-					<td><input type="checkbox" id="PDFpicCheck" /><label for="PDFpicCheck">Photo</label> </td>
-					<td><input type="checkbox" id="PDFresCheck" /><label for="PDFresCheck">Resident Status</label> </td>
-					<td><input type="checkbox" id="PDFphoneCheck" /><label for="PDFphoneCheck">Home Phone #</label> </td>
-					<td><input type="checkbox" id="PDFcellCheck" /><label for="PDFcellCheck">Cell Phone #</label> </td>
-				</tr>
-				<tr>
-					<td> <input type="checkbox" id="PDFdormCheck" /><label for="PDFdormCheck">Dorm Room</label></td>
-					<td> <input type="checkbox" id="PDFextensionCheck" /><label for="PDFextensionCheck">Room Phone</label></td>
-					<td><input type="checkbox" id="PDFemailCheck" /><label for="PDFemailCheck">Email</label> </td>
-					<td> <input type="checkbox" id="PDFboxCheck" /><label for="PDFboxCheck">Mailbox</label></td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" id="PDFdobCheck" /><label for="PDFdobCheck">Birthdate</label> </td>
-					<td><input type="checkbox" id="PDFyearCheck" /><label for="PDFyearCheck">Year</label> </td>
-					<td><input type="checkbox" id="PDFmajorCheck" /><label for="PDFmajorCheck">Major</label> </td>
-					<td> <input type="checkbox" id="PDFaddressCheck"><label for="PDFaddressCheck">Home Address</label> </td>
-				</tr>
-			</table>
-			<hr noshade="noshade" />
-			Employees:
-			<table border = 0>
-				<tr>
-					<td><input type="checkbox" id="PDFphotoCheckFS" /><label for="PDFphotoCheckFS">Photo</label> </td> 
-					<td><input type="checkbox" id="PDFtitleCheckFS" /><label for="PDFtitleCheckFS">Title</label> </td> 
-					<td><input type="checkbox" id="PDFextensionCheckFS" /><label for="PDFextensionCheckFS">Extension</label> </td> 
-					<td><input type="checkbox" id="PDFbuildingCheckFS" /><label for="PDFbuildingCheckFS">Building</label> </td> 
-				</tr>
-				<tr>
-					<td><input type="checkbox" id="PDFemailCheckFS" /><label for="PDFemailCheckFS">Email</label> </td> 
-					<td><input type="checkbox" id="PDFphoneCheckFS" /><label for="PDFphoneCheckFS">Home Phone #</label> </td> 
-					<td> <input type="checkbox" id="PDFaddressCheckFS" /><label for="PDFaddressCheckFS">Home Address</label> </td>
-				</tr>
-			</table>
-			<center><input type="button" value="Check/Uncheck All" id="PDFtoggleButton" /></center>
-			<br />
-			PDF is a universal document format. To view PDF documents, you must install the free <a href="http://get.adobe.com/reader/" target="_blank">Adobe Reader</a> or equivalent software.
-		</div>
-</body>
+        <div id="search-options">
+          <div id="search" class="option">
+            <span class="search-text">Search</span>
+            <input type="text" id="search-box" placeholder="Search Name" />
+            <input type="button" value="Go" id="button" />
+          </div>
+          <div id="group" class="option">
+            <span class="search-text">Group: </span>
+            <select>
+              <option>Undergraduate</option>
+              <option>MMP</option>
+              <option>Employees</option>
+            </select>
+          </div>
+          <div id="sort-by" class="option">
+            <span class="search-text">Sort By: </span>
+            <select>
+              <option>First Name</option>
+              <option>Last Name</option>
+            </select>
+          </div>
+          <div id="order-by" class="option">
+            <span class="search-text">Order: </span>
+            <select>
+              <option>Ascending</option>
+              <option>Descending</option>
+            </select>
+          </div>
+        </div>
+        <!--End of earch-options container-->
+      </div>
+      <!--End of header container -->
+    </header>
+    <main>
+      <div id="main-container">
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/corvay.jpg"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card">
+            <div id="second-description">
+              <p id="student-year">Year: <span id="student-year">JR</span></p>
+              <p id="student-major">
+                Major: <span id="student-year">Computer Science</span>
+              </p>
+              <p id="student-birthdate">
+                Birthdate: <span id="student-year">07/17</span>
+              </p>
+            </div>
+            <div id="third-description">
+              <p id="student-address">
+                Address:
+                <span id="student-year"
+                  >1834 Beechwood Ave NE North Canton, OH 44720</span
+                >
+              </p>
+              <a href="#" id="create-pdf">Create PDF</a>
+              <input type="text" placeholder="Add to group.." id="add-group" />
+            </div>
+          </div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">Read More..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+        <div id="card">
+          <div id="less-card">
+            <img
+              src="./images/nopic-black.png"
+              alt="Student Image"
+              id="student-img"
+            />
+            <div id="description">
+              <b id="student-name">Corvay A Chapman</b>
+              <p id="student-loco">Commuter</p>
+              <p id="student-phone-number">
+                Cell Phone: <span id="student-phone-number">330-312-9597</span>
+              </p>
+              <p id="student-email">cachapman1@malone.edu</p>
+              <p id="more-info">More Info..</p>
+            </div>
+          </div>
+          <div id="more-card"></div>
+        </div>
+        <!-- End of Card-->
+      </div>
+    </main>
+  </body>
 </html>
